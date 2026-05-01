@@ -23,4 +23,12 @@ public class AccountRepository {
     public Account findAccountByNumber(String accountNumber) {
         return customerRepository.findAccountByNumber(accountNumber);
     }
+
+    public boolean updateAccount(Account updated) {
+        return customerRepository.updateAccount(updated);
+    }
+
+    public boolean deleteAccountByNumber(String accountNumber) {
+        return customerRepository.deleteAccountByNumber(accountNumber);
+    }
 }

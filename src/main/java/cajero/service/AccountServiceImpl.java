@@ -37,4 +37,14 @@ public class AccountServiceImpl implements AccountService {
     public Account findAccountByNumber(String accountNumber) {
         return accountRepository.findAccountByNumber(accountNumber);
     }
+
+    @Override
+    public boolean updateAccount(Account account) {
+        return accountRepository.updateAccount(account);
+    }
+
+    @Override
+    public boolean deleteAccountByNumber(String accountNumber) {
+        return accountRepository.deleteAccountByNumber(accountNumber);
+    }
 }
