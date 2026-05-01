@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CustomerView {
 
-    public CustomerView(Object customerServiceImpl) {
+    public CustomerView() {
     }
 
     public Customer createCustomerInteractive() {

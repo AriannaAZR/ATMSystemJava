@@ -33,12 +33,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Accounts
     @Override
-    public Account openAccountInteractive(int customerId) {
+    public void addAccount(int customerId, Account account) {
         Customer customer = repository.findCustomerById(customerId);
-        if (customer == null) return null;
-        Account account = cajero.domain.Account.createAccount(new Account(), customer);
+        if (customer == null || account == null) return;
+        account.setOwner(customer);
         repository.addAccount(customerId, account);
-        return account;
     }
 
     @Override
@@ -53,13 +52,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     // Cards
     @Override
-    public Card issueCardInteractive(int customerId) {
+    public void addCard(int customerId, Card card) {
         Customer customer = repository.findCustomerById(customerId);
-        if (customer == null) return null;
-        // Se crea una tarjeta "vacía" y el método interactivo rellena los datos
-        Card card = cajero.domain.Card.isueCard(new Card(0, "", "", ""), customer);
+        if (customer == null || card == null) return;
+        card.setCardName(customer.getName());
         repository.addCard(customerId, card);
-        return card;
     }
 
     @Override
@@ -70,5 +67,26 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Card findCardByNumber(String cardNumber) {
         return repository.findCardByNumber(cardNumber);
+    }
+
+    // Transactions
+    @Override
+    public boolean deposit(String accountNumber, double amount) {
+        Account acc = repository.findAccountByNumber(accountNumber);
+        if (acc == null || amount <= 0) return false;
+        acc.setBalance(acc.getBalance() + amount);
+        return true;
+    }
+
+    @Override
+    public boolean withdraw(String accountNumber, String cardNumber, String pin, double amount) {
+        Account acc = repository.findAccountByNumber(accountNumber);
+        Card card = repository.findCardByNumber(cardNumber);
+        if (acc == null || card == null) return false;
+        if (card.isBlocked()) return false;
+        if (!String.valueOf(card.getEncryptedPin()).equals(pin)) return false;
+        if (amount <= 0 || acc.getBalance() < amount) return false;
+        acc.setBalance(acc.getBalance() - amount);
+        return true;
     }
 }

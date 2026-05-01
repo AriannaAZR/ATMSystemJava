@@ -1,9 +1,9 @@
 package cajero;
 
-import cajero.userinterface.MenuCajero;
+import cajero.config.AppConfig;
 
 public class Main {
     public static void main(String[] args) {
-        new MenuCajero().start();
+        AppConfig.createMenuCajero().start();
     }
 }

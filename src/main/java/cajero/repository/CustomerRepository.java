@@ -6,16 +6,14 @@ import cajero.domain.Customer;
 
 import java.util.*;
 
-/**
- * In-memory repository for Customers, their Accounts and Cards.
- */
+
 public class CustomerRepository {
 
     private final Map<Integer, Customer> customers = new HashMap<>();
     private final Map<Integer, List<Account>> accountsByCustomer = new HashMap<>();
     private final Map<Integer, List<Card>> cardsByCustomer = new HashMap<>();
 
-    // Customers
+
     public Customer saveCustomer(Customer customer) {
         if (customer == null) return null;
         customers.put(customer.getId(), customer);
@@ -30,7 +28,7 @@ public class CustomerRepository {
         return new ArrayList<>(customers.values());
     }
 
-    // Accounts
+
     public void addAccount(int customerId, Account account) {
         accountsByCustomer.computeIfAbsent(customerId, k -> new ArrayList<>()).add(account);
     }

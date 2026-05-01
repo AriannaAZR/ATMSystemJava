@@ -8,24 +8,29 @@ import java.util.List;
 
 public interface CustomerService {
 
-    // Customers
+
     Customer register(Customer customer);
 
     Customer findCustomer(int id);
 
     List<Customer> listCustomers();
 
-    // Accounts
-    Account openAccountInteractive(int customerId);
+
+    void addAccount(int customerId, Account account);
 
     List<Account> getAccountsByCustomer(int customerId);
 
     Account findAccountByNumber(String accountNumber);
 
-    // Cards
-    Card issueCardInteractive(int customerId);
+
+    void addCard(int customerId, Card card);
 
     List<Card> getCardsByCustomer(int customerId);
 
     Card findCardByNumber(String cardNumber);
+
+
+    boolean deposit(String accountNumber, double amount);
+
+    boolean withdraw(String accountNumber, String cardNumber, String pin, double amount);
 }
