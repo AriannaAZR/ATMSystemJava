@@ -76,59 +76,5 @@ public class Customer {
         this.user = user;
     }
 
-    public static Customer createUser(){
-        Customer customer = new Customer();
 
-        System.out.println("---Register New Customer---");
-
-        System.out.println("Enter the customer ID ");
-        while (!sc.hasNextInt()) {
-            System.out.println("Invalid ID. Enter a number: ");
-            sc.next();
-        }
-        int id = sc.nextInt();
-        customer.setId(id);
-        sc.nextLine();
-
-        System.out.println("Enter the customer name ");
-        String name = sc.nextLine();
-        customer.setName(name);
-
-        System.out.println("Enter the customer email address ");
-        String email = sc.nextLine();
-        while (!email.contains("@") || !email.contains(".")) {
-            System.out.println("Error: Invalid email format. Must contain '@' and a domain (ej: user@gmail.com)");
-            System.out.print("Try again");
-            email = sc.nextLine();
-        }
-        customer.setEmail(email);
-
-        System.out.println("Enter the customer phone number ");
-        String phone = sc.nextLine();
-        customer.setPhone(phone);
-
-        System.out.println("Enter the customer user name ");
-        String user = sc.nextLine();
-        customer.setUser(user);
-
-        System.out.println("Enter the customer password ");
-        String password = sc.nextLine();
-        customer.setPassword(password);
-
-        return customer;
-    }
-
-    public void getCustomerById(int id){
-        if (id == this.id){
-            System.out.println("Customer ID: " + this.id + "\n" +
-                    "Name: " + this.name + "\n"+
-                    "Email" + this.email + "\n" +
-                    "Phone" + this.phone + "\n"+
-                    "User: ****" + this.user + "\n"+
-                    "Password: ***" + this.password);
-
-        }else {
-            System.out.println("Id not found. Please try again");
-        }
-    }
 }

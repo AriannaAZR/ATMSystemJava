@@ -1,8 +1,9 @@
 package cajero;
 
-import java.util.Scanner;
+import cajero.userinterface.MenuCajero;
 
 public class Main {
-    Scanner sc = new Scanner(System.in);
-
+    public static void main(String[] args) {
+        new MenuCajero().start();
+    }
 }
