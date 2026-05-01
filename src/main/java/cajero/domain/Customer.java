@@ -1,4 +1,4 @@
-package cajero;
+package cajero.domain;
 
 import java.util.Scanner;
 
