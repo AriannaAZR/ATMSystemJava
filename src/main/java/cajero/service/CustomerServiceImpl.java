@@ -15,7 +15,7 @@ public class CustomerServiceImpl implements CustomerService {
         this.repository = repository;
     }
 
-    // Customers
+    // Customers CRUD
     @Override
     public Customer register(Customer customer) {
         return repository.saveCustomer(customer);
@@ -29,6 +29,16 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<Customer> listCustomers() {
         return repository.findAllCustomers();
+    }
+
+    @Override
+    public Customer updateCustomer(Customer customer) {
+        return repository.updateCustomer(customer);
+    }
+
+    @Override
+    public boolean deleteCustomer(int id) {
+        return repository.deleteCustomer(id);
     }
 
     // Accounts
@@ -55,7 +65,9 @@ public class CustomerServiceImpl implements CustomerService {
     public void addCard(int customerId, Card card) {
         Customer customer = repository.findCustomerById(customerId);
         if (customer == null || card == null) return;
-        card.setCardName(customer.getName());
+        if (card.getCardName() == null || card.getCardName().isBlank()) {
+            card.setCardName(customer.getName());
+        }
         repository.addCard(customerId, card);
     }
 

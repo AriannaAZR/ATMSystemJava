@@ -3,6 +3,7 @@ package cajero.userinterface;
 import cajero.domain.Account;
 import cajero.domain.Card;
 import cajero.domain.Customer;
+import cajero.domain.Transaction;
 import cajero.service.AccountService;
 import cajero.service.CardService;
 import cajero.service.CustomerService;
@@ -14,6 +15,7 @@ import cajero.view.CustomerView;
 import cajero.view.TransactionView;
 
 import java.util.List;
+import java.util.Scanner;
 
 public class MenuCajero {
 
@@ -26,6 +28,8 @@ public class MenuCajero {
     private final AccountView accountView;
     private final CardView cardView;
     private final TransactionView transactionView;
+
+    private final Scanner sc = new Scanner(System.in);
 
     public MenuCajero(CustomerService customerService,
                       AccountService accountService,
@@ -60,6 +64,19 @@ public class MenuCajero {
                 case 6 -> handleWithdrawal();
                 case 7 -> handleShowCustomerById();
                 case 8 -> handleListCustomers();
+
+                case 9 -> handleUpdateCustomer();
+                case 10 -> handleDeleteCustomer();
+
+                case 11 -> handleUpdateAccount();
+                case 12 -> handleDeleteAccount();
+
+                case 13 -> handleUpdateCard();
+                case 14 -> handleDeleteCard();
+
+                case 15 -> handleListTransactionsByAccount();
+                case 16 -> handleDeleteTransactionById();
+
                 case 0 -> exit = true;
                 default -> System.out.println("Opción inválida. Intente nuevamente.");
             }
@@ -82,6 +99,14 @@ public class MenuCajero {
         System.out.println("6) Retirar");
         System.out.println("7) Ver cliente por ID");
         System.out.println("8) Listar clientes");
+        System.out.println("9) Actualizar cliente");
+        System.out.println("10) Eliminar cliente");
+        System.out.println("11) Actualizar cuenta");
+        System.out.println("12) Eliminar cuenta");
+        System.out.println("13) Actualizar tarjeta");
+        System.out.println("14) Eliminar tarjeta");
+        System.out.println("15) Listar transacciones por cuenta");
+        System.out.println("16) Eliminar transacción por ID");
         System.out.println("0) Salir");
     }
 
@@ -188,6 +213,126 @@ public class MenuCajero {
 
     private void handleListCustomers() {
         customerView.printCustomers(customerService.listCustomers());
+    }
+
+    private void handleUpdateCustomer() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente a actualizar: ");
+        Customer c = customerService.findCustomer(id);
+        if (c == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        System.out.println("Deje vacío para mantener el valor actual.");
+        c.setName(promptOptional("Nombre", c.getName()));
+        c.setEmail(promptOptional("Email", c.getEmail()));
+        c.setPhone(promptOptional("Teléfono", c.getPhone()));
+        c.setUser(promptOptional("Usuario", c.getUser()));
+        String pwd = promptOptional("Contraseña", "***");
+        if (!"***".equals(pwd)) c.setPassword(pwd);
+        Customer updated = customerService.updateCustomer(c);
+        if (updated != null) {
+            System.out.println("Cliente actualizado:");
+            customerView.printCustomer(updated);
+        } else {
+            System.out.println("No se pudo actualizar el cliente.");
+        }
+    }
+
+    private void handleDeleteCustomer() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente a eliminar: ");
+        boolean ok = customerService.deleteCustomer(id);
+        System.out.println(ok ? "Cliente eliminado." : "No se pudo eliminar (ID no existe).");
+    }
+
+    private void handleUpdateAccount() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente: ");
+        if (customerService.findCustomer(id) == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        Account acc = chooseAccount(id);
+        if (acc == null) return;
+        System.out.println("Deje vacío para mantener el valor actual.");
+        String type = promptOptional("Tipo de cuenta", acc.getAccountType());
+        acc.setAccountType(type);
+        String changeBal = promptOptional("¿Cambiar saldo? (s/n)", "n");
+        if ("s".equalsIgnoreCase(changeBal)) {
+            double bal = TypeValidator.validateDouble("Nuevo saldo: ");
+            acc.setBalance(bal);
+        }
+        boolean ok = accountService.updateAccount(acc);
+        System.out.println(ok ? "Cuenta actualizada." : "No se pudo actualizar la cuenta.");
+    }
+
+    private void handleDeleteAccount() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente: ");
+        if (customerService.findCustomer(id) == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        Account acc = chooseAccount(id);
+        if (acc == null) return;
+        boolean ok = accountService.deleteAccountByNumber(acc.getNumber());
+        System.out.println(ok ? "Cuenta eliminada." : "No se pudo eliminar la cuenta.");
+    }
+
+    private void handleUpdateCard() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente: ");
+        if (customerService.findCustomer(id) == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        Card card = chooseCard(id);
+        if (card == null) return;
+        System.out.println("Deje vacío para mantener el PIN actual.");
+        String pin = promptOptional("Nuevo PIN (4 dígitos)", "");
+        if (!pin.isBlank()) {
+            if (pin.length() == 4 && pin.chars().allMatch(Character::isDigit)) {
+                card.setEncryptedPin(pin);
+            } else {
+                System.out.println("PIN inválido, se mantiene el actual.");
+            }
+        }
+        boolean blocked = TypeValidator.validateBoolean("¿Bloquear tarjeta? (true/false): ");
+        card.setBlocked(blocked);
+        boolean ok = cardService.updateCard(card);
+        System.out.println(ok ? "Tarjeta actualizada." : "No se pudo actualizar la tarjeta.");
+    }
+
+    private void handleDeleteCard() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente: ");
+        if (customerService.findCustomer(id) == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        Card card = chooseCard(id);
+        if (card == null) return;
+        boolean ok = cardService.deleteCardByNumber(card.getCardNumber());
+        System.out.println(ok ? "Tarjeta eliminada." : "No se pudo eliminar la tarjeta.");
+    }
+
+    private void handleListTransactionsByAccount() {
+        int id = TypeValidator.validateInt("Ingrese el ID del cliente: ");
+        if (customerService.findCustomer(id) == null) {
+            System.out.println("Cliente no encontrado.");
+            return;
+        }
+        Account acc = chooseAccount(id);
+        if (acc == null) return;
+        List<Transaction> txs = transactionService.listByAccount(acc.getNumber());
+        transactionView.printTransactions(txs);
+    }
+
+    private void handleDeleteTransactionById() {
+        int txId = transactionView.readTransactionId();
+        boolean ok = transactionService.deleteById(txId);
+        System.out.println(ok ? "Transacción eliminada." : "No se encontró la transacción.");
+    }
+
+    private String promptOptional(String label, String current) {
+        System.out.print(label + " [" + current + "]: ");
+        String line = sc.nextLine();
+        return line == null || line.isBlank() ? current : line.trim();
     }
 
     private Account chooseAccount(int customerId) {
